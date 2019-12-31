@@ -26,14 +26,14 @@ client.on('ready', () => {
 
 client.on('message', message => {
     const cont = message.content.trim().split(" ")
-    if (cont[0] === "bean-gaming") {
+    if (cont[0] === "<@!511611017630056488>") {
         const user = message.member
-       const channel = message.channel
+        const channel = message.channel
         const name = cont.slice(2).join(" ").trim()
         switch (cont[1]) {
             case "add-role":
                  if (state[message.guild.id][name] === undefined) {
-                    channel.send(`Role does not exist in guild or cannot be joined!`)
+                    channel.send(`Role does not exist in guild or cannot be joined. Check your spelling and capitalization.`)
                 } else {
                     channel.send(`Role added!`)
                     user.addRole(state[message.guild.id][name])
@@ -48,11 +48,25 @@ client.on('message', message => {
                     channel.send(`Could not find the role in your role list!`)
                 }
                 break;
+            case "view-roles":
+                channel.send(`The roles available to join are:
+
+${Object.keys(state[message.guild.id]).join(", ")}`)
+                break;
+            case "help":
+                channel.send(`The available commands are:
+
+    \`add-role\`: add a role to yourself
+    \`remove-role\`: remove a role from yourself
+    \`view-roles\`: list all joinable roles
+    \`help\`: print this help message`)
+                break;
             default:
-                channel.send("Unknown command!")
+                channel.send("Unknown command! Use `help` to see all available commands.")
                 break;
         }
-    }
+    } 
+
 })
 
 const update = role => {

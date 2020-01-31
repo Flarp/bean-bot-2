@@ -7,10 +7,12 @@ const token = fs.readFileSync('.env', 'utf8').replace("\n", "")
 
 const state = {}
 
+const color_set = new Set([15158332, 3066993, 2123412])
+
 const sync = guild => {
     state[guild.id] = {};
     for (role of guild.roles.array()) {
-        if (role.color === 15158332) {
+        if (color_set.has(role.color)) {
             state[guild.id][role.name] = role.id
         }
     }
@@ -36,7 +38,9 @@ client.on('message', message => {
                     channel.send(`Role does not exist in guild or cannot be joined. Check your spelling and capitalization.`)
                 } else {
                     channel.send(`Role added!`)
+                        .catch(console.error)
                     user.addRole(state[message.guild.id][name])
+                        .catch(console.error)
                 }
                 break;
             case "remove-role":
@@ -69,15 +73,18 @@ ${Object.keys(state[message.guild.id]).join(", ")}`)
 
 })
 
-const update = role => {
-    if (role.color == 15158332) {
+const update = (oldr, role) => {
+    if (oldr.name !== role.name) {
+        delete state[oldr.guild.id][oldr.name]
+    }
+    if (color_set.has(role.color)) {
         state[role.guild.id][role.name] = role.id
     } else {
         delete state[role.guild.id][role.name]
     }
 }
 
-client.on('roleCreate', update)
-client.on('roleUpdate', (_, role) => update(role))
+client.on('roleCreate', nr => update(null, nr))
+client.on('roleUpdate', update)
 
 client.login(token)

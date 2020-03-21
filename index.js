@@ -11,24 +11,24 @@ const color_set = new Set([15158332, 3066993, 2123412])
 
 const sync = guild => {
     state[guild.id] = {};
-    for (role of guild.roles.array()) {
+    guild.roles.map(role => {
         if (color_set.has(role.color)) {
             state[guild.id][role.name] = role.id
         }
-    }
+    })
 }
 
 client.on('guildCreate', sync)
 client.on('ready', () => {
-    for (guild of client.guilds.array()) {
+    client.guilds.map(guild => {
         sync(guild)
-    }
+    })
     console.log(state)
 })
 
 client.on('message', message => {
     const cont = message.content.trim().split(" ")
-    if (cont[0] === "<@!511611017630056488>") {
+    if (message.mentions.members.first() == message.guild.me) {
         const user = message.member
         const channel = message.channel
         const name = cont.slice(2).join(" ").trim()
@@ -38,9 +38,7 @@ client.on('message', message => {
                     channel.send(`Role does not exist in guild or cannot be joined. Check your spelling and capitalization.`)
                 } else {
                     channel.send(`Role added!`)
-                        .catch(console.error)
                     user.addRole(state[message.guild.id][name])
-                        .catch(console.error)
                 }
                 break;
             case "remove-role":
